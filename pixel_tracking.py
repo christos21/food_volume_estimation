@@ -2,7 +2,7 @@
 """
 Created on Tue Jun 11 12:56:31 2019
 
-@author: Xristos
+@author: Christos
 """
 
 import cv2
@@ -46,7 +46,7 @@ with open('calibration.yaml') as f:
 cameraMatrix = np.array(intrinsic.get('cameraMatrix'))
 distCoeffs = np.array(intrinsic.get('distCoeffs'))
 
-vid = "samples\\normal\\food24.mp4"
+vid = "/media/christos/Windows/Users/user/Desktop/samples/normal/food2.mp4"
 start = time.time()
 cap = cv2.VideoCapture(vid)
 
@@ -261,7 +261,8 @@ while u < clouds:
 #        pts2 = pts2[er_ind,:]
 #        color1 = color1[er_ind,:]
 #        pts3D = pts3D[er_ind,:]
-##        
+
+
     if pts1.shape[0] < 10:
         continue
     

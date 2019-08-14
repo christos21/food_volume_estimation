@@ -2,7 +2,7 @@
 """
 Created on Tue Jun 11 11:34:09 2019
 
-@author: Xristos
+@author: Christos
 """
 
 import cv2
@@ -295,7 +295,7 @@ def food(image, placemat, cor):
 
 
     # Calclate the histogram of the image in the hsv colorspace ONLY for the markers
-    roihist = cv2.calcHist([hsv],[0, 1], markers_mask, [180, 256], [0, 180, 0, 256] )
+    roihist = cv2.calcHist([hsv], [0, 1], markers_mask, [180, 256], [0, 180, 0, 256])
 
     # Values for H in the placemat
     h1 = 92 #apo 94 stis 19/6 gia to food23 pou eixe h = 102
@@ -369,7 +369,8 @@ def food(image, placemat, cor):
    
     
    # Find contours
-    _, contours, _ = cv2.findContours(dish, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+   #  _, \
+    contours, _ = cv2.findContours(dish, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     # Find the convex hull object for each contour
     hull_list = []
     for i in range(len(contours)):
@@ -421,7 +422,8 @@ def food(image, placemat, cor):
 
     # Find the contours that are formed from the edges
     th1 = gray*edg
-    _, contours,hierarchy = cv2.findContours(th1,2,1)
+    # _, \
+    contours,hierarchy = cv2.findContours(th1,2,1)
 
 
     img = np.zeros(gray.shape, image.dtype)

@@ -1,15 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-Created on Mon Jun 24 21:47:57 2019
-
-@author: Xristos
-"""
-
-# -*- coding: utf-8 -*-
-"""
 Created on Tue Jun 11 13:14:42 2019
 
-@author: Xristos
+@author: Christos
 """
 
 import cv2
