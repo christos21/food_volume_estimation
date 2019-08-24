@@ -14,44 +14,14 @@ from auxiliary_functions import *
 import time
 from random import randint
 from matplotlib import pyplot as plt
-%matplotlib auto
-from mpl_toolkits.mplot3d import Axes3D
-from matplotlib import cm
 from scipy.spatial import Delaunay
 from scipy.spatial import ConvexHull
 
+%matplotlib auto
+
 start = time.time()
-
-# Initialize Semi Global Block Matching  
-window_size = 5
-min_disp = -1
-num_disp = 20*16
-left_matcher = cv2.StereoSGBM_create(
-    minDisparity = min_disp,
-    numDisparities=num_disp,  
-    blockSize=window_size,
-    P1=8 * 3 * window_size**2,
-    P2=32 * 3 * window_size**2,
-    disp12MaxDiff = -1,
-    uniquenessRatio=10,
-    speckleWindowSize=40,  #apo 50
-    speckleRange=2,
-    preFilterCap=63,
-    mode=cv2.STEREO_SGBM_MODE_SGBM_3WAY
-)
-right_matcher = cv2.ximgproc.createRightMatcher(left_matcher)
-# FILTER Parameters
-lmbda = 80000
-sigma = 1.3
-visual_multiplier = 6
-wls_filter = cv2.ximgproc.createDisparityWLSFilter(matcher_left=left_matcher)
-wls_filter.setLambda(lmbda)
-wls_filter.setSigmaColor(sigma)
-
-
 # create dictionary
 aruco_dict = aruco.Dictionary_get(aruco.DICT_6X6_100)
-
 # Creating a theoretical board we'll use to calculate marker positions
 board = aruco.GridBoard_create(
     markersX=5,
@@ -62,16 +32,13 @@ board = aruco.GridBoard_create(
 
 arucoParams = aruco.DetectorParameters_create()
 
-
+# find markers corners in WCS
 a = board.getGridSize()
 b = board.getMarkerLength()
 c = board.getMarkerSeparation()
-
 markers = a[0]*a[1]
 full = (a[1] - 1)*(b + c) + b
-
 real = []
-
 for i in range(markers):
     x = i % a[0]
     y = i // a[0]
