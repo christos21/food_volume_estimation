@@ -1,2 +1,4 @@
+# ide folder
 .idea
+# pyc files
 *.pyc

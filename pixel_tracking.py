@@ -374,7 +374,7 @@ while u < clouds:
     pcd.points = Vector3dVector(xyz)
     pcd.colors = Vector3dVector(color1/255.0)
 
-    # plot start and end frame with WCC axis
+    # plot start and end frame with WCS axis
     img_aruco = np.copy(frame1)
     img_aruco = aruco.drawAxis(img_aruco, cameraMatrix, distCoeffs, rvec1, tvec1, 0.1)
     plt.figure()
@@ -384,7 +384,7 @@ while u < clouds:
     plt.figure()
     plt.imshow(cv2.cvtColor(img_aruco, cv2.COLOR_BGR2RGB))
 
-    # if this is the first iteration just initialize the final point cloud w
+    # if this is the first iteration just initialize the final point cloud
     if ut==1:
         final = pcd
         Xs = X
