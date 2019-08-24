@@ -14,18 +14,17 @@ from scipy.spatial import ConvexHull
 
 
 def calibrate_cap1(cap, step):
+
     """ Calibrates the camera for intrinsic parameters.
     
     Parameters:
         cap : The video object.
-        num: Number of frames that will be used for calibration.
         step: Distance between frames.
         
     Returns:
         cameraMatrix: Camera matrix.
-        distCoeffs: Distortion coefficients. 
+        distCoeffs: Distortion coefficients.
     """
-    
     # create dictionary
     aruco_dict = aruco.Dictionary_get(aruco.DICT_6X6_100)
 
