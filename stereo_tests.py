@@ -15,10 +15,6 @@ import time
 from random import randint
 from matplotlib import pyplot as plt
 %matplotlib auto
-# from mpl_toolkits.mplot3d import Axes3D
-# from matplotlib import cm
-# from scipy.spatial import Delaunay
-# from scipy.spatial import ConvexHull
 
 start = time.time()
 
@@ -51,9 +47,7 @@ for i in range(markers):
                 [x*(b + c) + b , full - y*(b + c) - b, 0],
                 [x*(b + c), full - y*(b + c) - b, 0]])
     
-    
-  
-    
+
 # Load precalculated intrinsic parameters
 with open('calibration.yaml') as f:
     intrinsic = yaml.load(f)
@@ -121,9 +115,6 @@ for food_num in range(24):
     
     u = 0
     ut = 0
-    
-#    cameraMatrix, roi = cv2.getOptimalNewCameraMatrix(cameraMatrix, distCoeffs, img_gray.shape[::-1], 0, img_gray.shape[::-1])
-    
     repeats = 0
     br = False
     while u < 1:
@@ -140,46 +131,12 @@ for food_num in range(24):
             br = True
             break
         img2 = img[ut + half]
-        
-#        img1 = cv2.undistort(img1, cameraMatrix, distCoeffs, None, cameraMatrix)
-#        img2 = cv2.undistort(img2, cameraMatrix, distCoeffs, None, cameraMatrix)
-        
+
         img_gray = cv2.cvtColor(img1,cv2.COLOR_BGR2GRAY)
         img_gray2 = cv2.cvtColor(img2,cv2.COLOR_BGR2GRAY)
     
         _, rvec1, tvec1, cor1, ids1 = pose_estimation(img1, board, aruco_dict, arucoParams, cameraMatrix, distCoeffs)
         _, rvec2, tvec2, cor2, ids2 = pose_estimation(img2, board, aruco_dict, arucoParams, cameraMatrix, distCoeffs)
-        
-        
-#        p1 = []
-#        p2 = []
-#        obj =[]
-#        
-#        for j in range(len(ids1)):
-#            if ids1[j] in ids2:
-#                th = np.where(ids2 == ids1[j])[0]
-#                for k in range(4):
-#                    p1.append(cor1[j][0][k])
-#                    p2.append(cor2[th[0]][0][k])
-#                    obj.append(real[ids1[j][0]][0])
-#                
-#                
-#        obj = np.array(obj, np.float32).reshape(1,-1,3)
-#        p1 = np.array(p1, np.float32).reshape(1,-1,2)
-#        p2 = np.array(p2, np.float32).reshape(1,-1,2)
-#          
-#        stereocalibration_criteria = (cv2.TERM_CRITERIA_MAX_ITER + cv2.TERM_CRITERIA_EPS, 100, 1e-5)
-#        stereocalibration_flags = cv2.CALIB_FIX_INTRINSIC
-#        
-#        flags = (cv2.CALIB_FIX_PRINCIPAL_POINT | cv2.CALIB_FIX_ASPECT_RATIO | cv2.CALIB_FIX_FOCAL_LENGTH |
-#                 cv2.CALIB_FIX_INTRINSIC | cv2.CALIB_FIX_K3 | cv2.CALIB_FIX_K4 | cv2.CALIB_FIX_K5 |
-#                 cv2.CALIB_FIX_K6)
-#        
-#        
-#        stereocalibration_retval, cameraMatrix1, distCoeffs1, cameraMatrix2,distCoeffs2, R, T, E, F = cv2.stereoCalibrate(obj,p1,p2,
-#             cameraMatrix,distCoeffs,cameraMatrix,distCoeffs,img_gray.shape[::-1],
-#             criteria = stereocalibration_criteria, flags = flags)
-#        
 
         # find rotation and projection matrices
         a1, _ = cv2.Rodrigues(rvec1)
@@ -214,11 +171,6 @@ for food_num in range(24):
         if np.abs(RL[0,0]) < 0.95:
             half += 1
             continue
-        
-    #    if np.abs(RL[1,0]) > 0.1 or np.abs(RL[2,0]) > 0.13:
-    #        ut += 1
-    #        half += 1
-    #        continue
                       
         mapL1, mapL2 = cv2.initUndistortRectifyMap(cameraMatrix, distCoeffs, RL, PL, (w,h), cv2.CV_32FC1)
         mapR1, mapR2 = cv2.initUndistortRectifyMap(cameraMatrix, distCoeffs, RR, PR, (w,h), cv2.CV_32FC1)
@@ -262,18 +214,10 @@ for food_num in range(24):
         if sss > 250:
             half = half - 1
             fl = True
-#            break
+
         elif sss < 130:
             half = half + 1
             fl = True
-#            break
-#      
-#        if fl:
-#            continue
-          
-#        if fl:
-#            continue
-#                
 
         # Based on this maximum horizontal translation, we specify the num_disp for the SGBM
         n = np.ceil(sss/16) + 1 #max(np.ceil(sss/16) + 2, 15)
@@ -308,7 +252,6 @@ for food_num in range(24):
         
         if  np.abs(RL[2,0]) > 0.15:
             ut += 1
-    #        half += 1
             continue
        
        
@@ -348,14 +291,9 @@ for food_num in range(24):
         only_plate = cv2.bitwise_and(imgL, imgL, mask = mask1)
         only_plate2 = cv2.bitwise_and(imgR, imgR, mask = mask2)
         
-    #    d1 = dish(imgL, mask1, cor1)
-    #    d2 = dish(imgR, mask2,cor2)
-        
         only_placemat1 = cv2.bitwise_and(mask1, mask1, mask = cv2.bitwise_not(d1))
         only_placemat2 = cv2.bitwise_and(mask2, mask2, mask = cv2.bitwise_not(d2))
-        
-        
-    
+
         # calculate disparity map
         displ = left_matcher.compute(imgL, imgR)  # .astype(np.float32)/16
         dispr = right_matcher.compute(imgR, imgL)  # .astype(np.float32)/16
@@ -373,9 +311,7 @@ for food_num in range(24):
 
         # normalize disparity map in order to represent the horizontal translation in pixels
         dmod = []
-        
         h1 = 0
-        
         while h1 < len(ids1):
             idd = ids1[h1][0]
             if idd not in ids2:
@@ -409,9 +345,7 @@ for food_num in range(24):
                 dmod.append(d3)
             if d4 < np.inf:
                 dmod.append(d4)
-            
-           
-            
+
             h1 += 1
          
         dxxx = np.round([1000*t for t in dmod])/1000
@@ -446,9 +380,7 @@ for food_num in range(24):
         only_plate = cv2.bitwise_and(imgL, imgL, mask = dish1)
         colors = cv2.cvtColor(only_plate, cv2.COLOR_BGR2RGB)
         c = colors[np.where(dish1>0)]
-        
-   
-        
+
         # get rid of some points that are at infitiy because they had 0 in disparity map
         ind = np.where((Z < np.inf) & (Z > -np.inf) & (X > -np.inf) & (X < np.inf) & (Y > -np.inf) & (Y < np.inf))
         X = X[ind]
@@ -462,8 +394,7 @@ for food_num in range(24):
         Y = Y[f]
         Z = Z[f]
         c = c[f]
-      
-    
+
         #  go from camera1 coordinate system to WCS
         p = np.array([X, Y, Z])
         pw = np.zeros((3,len(X)))
@@ -474,11 +405,9 @@ for food_num in range(24):
         X = pw[0,:]
         Y = pw[1,:]
         Z = pw[2,:]
-    
-        
+
         C = c/255.0
-        
-    
+
         # find placemat coordintes
         d = disparity[only_placemat1>0]    
         rows, cols = np.where(only_placemat1 > 0)
@@ -534,41 +463,8 @@ for food_num in range(24):
 
         u += 1
     
-      
-    #    fig = plt.figure()
-    #    ax = fig.gca(projection='3d')
-    #    ax.set_aspect('equal')
-    #    scat = ax.scatter(X, Y, Z, c = C, s = 3)
-    #    max_range = np.array([X.max()-X.min(), Y.max()-Y.min(), Z.max()-Z.min()]).max() / 2.0
-    #    mid_x = (X.max()+X.min()) * 0.5
-    #    mid_y = (Y.max()+Y.min()) * 0.5
-    #    mid_z = (Z.max()+Z.min()) * 0.5
-    #    ax.set_xlim(mid_x - max_range, mid_x + max_range)
-    #    ax.set_ylim(mid_y - max_range, mid_y + max_range)
-    #    ax.set_zlim(mid_z - max_range, mid_z + max_range)
-    #    plt.show()
-        
-    #    fig = plt.figure()
-    #    ax = fig.gca(projection='3d')
-    #    ax.set_aspect('equal')
-    #    scat = ax.scatter(X_placemat, Y_placemat, Z_placemat, s = 3)
-    #    max_range = np.array([X_placemat.max()-X_placemat.min(), Y_placemat.max()-Y_placemat.min(), Z_placemat.max()-Z_placemat.min()]).max() / 2.0
-    #    mid_x = (X_placemat.max()+X_placemat.min()) * 0.5
-    #    mid_y = (Y_placemat.max()+Y_placemat.min()) * 0.5
-    #    mid_z = (Z_placemat.max()+Z_placemat.min()) * 0.5
-    #    ax.set_xlim(mid_x - max_range, mid_x + max_range)
-    #    ax.set_ylim(mid_y - max_range, mid_y + max_range)
-    #    ax.set_zlim(mid_z - max_range, mid_z + max_range)
-    #    plt.show()
-        
-    
-        
-        
-    
-    
-    
     # dish height
-    bottom =  0.009 # max(0, Zs.min())
+    bottom =  0.009
 
     # keep points that are higher than dish height
     ind = np.where((Z < 0.20) & (Z > bottom) & (X > 0) & (X < 0.5) & (Y > 0) & (Y < 0.5))
@@ -599,9 +495,7 @@ for food_num in range(24):
     Y = inliers[:,1]
     Z = inliers[:,2]
     C = np.asarray(inlier_cloud.colors)
-    
-    
-    
+
     # Plot point cloud
     fig = plt.figure()
     ax = fig.gca(projection='3d')
