@@ -15,10 +15,11 @@ import time
 from random import randint
 from matplotlib import pyplot as plt
 %matplotlib auto
-from mpl_toolkits.mplot3d import Axes3D
-from matplotlib import cm
+# from mpl_toolkits.mplot3d import Axes3D
+# from matplotlib import cm
 from scipy.spatial import Delaunay
 from scipy.spatial import ConvexHull
+
 
 start = time.time()
 
@@ -62,16 +63,14 @@ board = aruco.GridBoard_create(
 
 arucoParams = aruco.DetectorParameters_create()
 
-
+# get 4 corners of each marker in WCS
 a = board.getGridSize()
 b = board.getMarkerLength()
 c = board.getMarkerSeparation()
 
 markers = a[0]*a[1]
 full = (a[1] - 1)*(b + c) + b
-
 real = []
-
 for i in range(markers):
     x = i % a[0]
     y = i // a[0]
@@ -81,9 +80,9 @@ for i in range(markers):
                 [x*(b + c), full - y*(b + c) - b, 0]])
     
 
+# load intrinsic parameters
 with open('calibration.yaml') as f:
     intrinsic = yaml.load(f)
-    
 cameraMatrix = np.array(intrinsic.get('cameraMatrix'))
 distCoeffs = np.array(intrinsic.get('distCoeffs'))
 
