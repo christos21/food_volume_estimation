@@ -247,8 +247,8 @@ for uuu in range(5):
 #                
             
         n = np.ceil(sss/16) + 1 #max(np.ceil(sss/16) + 2, 15)
-        left_matcher.setNumDisparities(int(n)*16)
-        right_matcher.setNumDisparities(int(n)*16)
+        # left_matcher.setNumDisparities(int(n)*16)
+        # right_matcher.setNumDisparities(int(n)*16)
         
         window_size = 7
         min_disp = -1

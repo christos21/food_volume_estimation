@@ -16,8 +16,6 @@ from random import randint
 from matplotlib import pyplot as plt
 %matplotlib auto
 
-start = time.time()
-
 # create dictionary
 aruco_dict = aruco.Dictionary_get(aruco.DICT_6X6_100)
 
@@ -110,8 +108,8 @@ for food_num in range(24):
     # interval between the frames of the list that will form the stereo pair
     half = 8
 
-    # initialization of the transformation matrix used in ICP
-    current_transformation = np.identity(4)
+    # # initialization of the transformation matrix used in ICP
+    # current_transformation = np.identity(4)
     
     u = 0
     ut = 0
@@ -221,8 +219,8 @@ for food_num in range(24):
 
         # Based on this maximum horizontal translation, we specify the num_disp for the SGBM
         n = np.ceil(sss/16) + 1 #max(np.ceil(sss/16) + 2, 15)
-        left_matcher.setNumDisparities(int(n)*16)
-        right_matcher.setNumDisparities(int(n)*16)
+        # left_matcher.setNumDisparities(int(n)*16)
+        # right_matcher.setNumDisparities(int(n)*16)
         
         window_size = 7
         min_disp = -1

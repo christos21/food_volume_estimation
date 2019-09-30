@@ -189,10 +189,7 @@ def pose_estimation(img, board, aruco_dict, arucoParams, mtx, dist):
         ret, rvec, tvec = aruco.estimatePoseBoard(corners, ids, board, mtx, dist)
         return 1, rvec, tvec, corners, ids
     
-    
-    
 
-    
 def placemat(img, mtx, rvec, tvec):
     
     """ Returns a mask with placemat pixels.
@@ -366,7 +363,7 @@ def food(image, placemat, cor):
     im_out = cv2.morphologyEx(im_out, cv2.MORPH_ERODE, np.ones((3,3),np.uint8), iterations = 20)
     dish = cv2.morphologyEx(im_out, cv2.MORPH_DILATE, np.ones((3,3),np.uint8), iterations = 20)
    
-    
+    # check code here, probably not needed till line 401
    # Find contours
    #  _, \
     contours, _ = cv2.findContours(dish, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
@@ -416,7 +413,7 @@ def food(image, placemat, cor):
     ########### 13/6 apo 1.25*ret to piga 0.5*ret gia kaluteres (pio euaisthito)akmes sta kolokythakia
     lim = 1.3
    
-    edg = cv2.Canny(gray, 30, 80)
+    edg = cv2.Canny(gray, 20, 40) #30,80
     #############
 
     # Find the contours that are formed from the edges
@@ -431,12 +428,11 @@ def food(image, placemat, cor):
     e = cv2.morphologyEx(im_out, cv2.MORPH_ERODE, np.ones((3,3),np.uint8), iterations = 15)
     cl = e*img
 
-    cl = cv2.morphologyEx(cl, cv2.MORPH_CLOSE, np.ones((3,3),np.uint8), iterations = 10)
+    cl = cv2.morphologyEx(cl, cv2.MORPH_CLOSE, np.ones((3, 3), np.uint8), iterations=10)
     
     ## 12/6 arakas
-    cl = cv2.morphologyEx(cl, cv2.MORPH_DILATE, np.ones((3,3),np.uint8), iterations = 4)
+    cl = cv2.morphologyEx(cl, cv2.MORPH_DILATE, np.ones((3, 3), np.uint8), iterations=4)
     ###
-
 
     # Copy the thresholded image.
     im_floodfill = cl.copy()
@@ -446,18 +442,17 @@ def food(image, placemat, cor):
     h, w = cl.shape[:2]
     mask = np.zeros((h+2, w+2), np.uint8)
      
-    # Floodfill from point (0, 0)
-    cv2.floodFill(im_floodfill, mask, (0,0), 255);
+    # Flood fill from point (0, 0)
+    cv2.floodFill(im_floodfill, mask, (0, 0), 255)
      
-    # Invert floodfilled image
+    # Invert flood filled image
     im_floodfill_inv = cv2.bitwise_not(im_floodfill)
      
     # Combine the two images to get the foreground.
     food = cl | im_floodfill_inv
-     
 
-    cl = cv2.morphologyEx(food, cv2.MORPH_OPEN, np.ones((3,3),np.uint8), iterations = 20)
-    food = cv2.morphologyEx(cl, cv2.MORPH_ERODE, np.ones((3,3),np.uint8), iterations = 2 )
+    cl = cv2.morphologyEx(food, cv2.MORPH_OPEN, np.ones((3, 3), np.uint8), iterations=20)
+    food = cv2.morphologyEx(cl, cv2.MORPH_ERODE, np.ones((3, 3), np.uint8), iterations=2)
     
     
     ##### fix this
