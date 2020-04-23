@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Jun 11 11:34:09 2019
-
-@author: Christos
-"""
-
 import cv2
 from cv2 import aruco
 import numpy as np
@@ -12,9 +5,7 @@ from scipy.spatial import Delaunay
 from scipy.spatial import ConvexHull
 
 
-
 def calibrate_cap1(cap, step):
-
     """ Calibrates the camera for intrinsic parameters.
     
     Parameters:
@@ -46,41 +37,38 @@ def calibrate_cap1(cap, step):
     first = True
     ret, img = cap.read()
     # For each image detect markers.
-    while ret == True:
-        
+    while ret:
         for t in range(step):
-            ret , img2 = cap.read()
+            ret, img2 = cap.read()
         
         ret, img = cap.read()
-        if ret == False:
+        if not ret:
             break
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     
         # Detect Aruco markers
         corners, ids, rejectedImgPoints = aruco.detectMarkers(gray, aruco_dict, parameters=parameters)
         for k in range(len(corners)):
-            cv2.cornerSubPix(gray, corners[k], (7, 7), (-1,-1), criteria)
+            cv2.cornerSubPix(gray, corners[k], (7, 7), (-1, -1), criteria)
      
-        # Put each marker's id and corners in seperate lists,
+        # Put each marker's id and corners in separate lists,
         # along with the number of markers
         if len(ids) > 1:
-            if first == True:
+            if first:
                 corners_list = corners
                 print(type(corners))
                 id_list = ids
                 first = False
             else:
                 corners_list = np.vstack((corners_list, corners))
-                id_list = np.vstack((id_list,ids))
+                id_list = np.vstack((id_list, ids))
                  
             counter.append(len(ids))
-           
-            
+
     # Calibrate
     counter = np.array(counter)    
     ret, cameraMatrix, distCoeffs, rvecs, tvecs = aruco.calibrateCameraAruco(corners_list, id_list, counter, board, gray.shape, None, None )
     return cameraMatrix, distCoeffs
-    
 
 
 def calibrate_cap(cap, num, step):
@@ -120,7 +108,7 @@ def calibrate_cap(cap, num, step):
     for i in range(num):
         
         for t in range(step):
-            ret , img2 = cap.read()
+            ret, img2 = cap.read()
         
         ret, img = cap.read()
         
@@ -134,26 +122,24 @@ def calibrate_cap(cap, num, step):
         for k in range(len(corners)):
             cv2.cornerSubPix(gray, corners[k], (7, 7), (-1,-1), criteria)
      
-        # Put each marker's id and corners in seperate lists,
+        # Put each marker's id and corners in separate lists,
         # along with the number of markers
         if len(ids) > 1:
-            if first == True:
+            if first:
                 corners_list = corners
                 print(type(corners))
                 id_list = ids
                 first = False
             else:
                 corners_list = np.vstack((corners_list, corners))
-                id_list = np.vstack((id_list,ids))
+                id_list = np.vstack((id_list, ids))
                  
             counter.append(len(ids))
-           
-            
+
     # Calibrate
     counter = np.array(counter)    
     ret, cameraMatrix, distCoeffs, rvecs, tvecs = aruco.calibrateCameraAruco(corners_list, id_list, counter, board, gray.shape, None, None )
     return cameraMatrix, distCoeffs
-    
 
 
 def pose_estimation(img, board, aruco_dict, arucoParams, mtx, dist):
@@ -177,16 +163,16 @@ def pose_estimation(img, board, aruco_dict, arucoParams, mtx, dist):
     """
     
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 1e-3) 
-    img_gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+    img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
     corners, ids, rejectedImgPoints = aruco.detectMarkers(img_gray, aruco_dict, parameters=arucoParams)
     for k in range(len(corners)):
-            cv2.cornerSubPix(img_gray, corners[k], (5, 5), (-1,-1), criteria)
-    if corners == None:
+            cv2.cornerSubPix(img_gray, corners[k], (5, 5), (-1, -1), criteria)
+    if not corners:
         print ("No markers detected. Can't estimate pose.")
         return 0, None, None, None, None
     else:
-        ret, rvec, tvec = aruco.estimatePoseBoard(corners, ids, board, mtx, dist)
+        ret, rvec, tvec = aruco.estimatePoseBoard(corners, ids, board, mtx, dist, None, None)
         return 1, rvec, tvec, corners, ids
     
 
@@ -232,7 +218,6 @@ def placemat(img, mtx, rvec, tvec):
 
     b = img.shape[:2]
 
-
     # Create the smallest possible image that is at least the size of the original
     # image, but also has the entire placemat in it (regardless if it is visible in the image)
     x1 = min(min(x), 0)
@@ -257,13 +242,8 @@ def placemat(img, mtx, rvec, tvec):
     return mask
 
 
-
-
-
-
-
 def food(image, placemat, cor):
-    """ Returns two mask with food and dish pixels 
+    """ Returns two masks with food and dish pixels
     
     Parameters:
         image : The original image where we will track the food.
@@ -282,45 +262,34 @@ def food(image, placemat, cor):
     for i in range(len(cor)):
         markers_mask = cv2.fillPoly(markers_mask, np.array(cor[i], dtype=np.int32), 255)
 
-
     # Keep only the placemat through the mask
     only_placemat = cv2.bitwise_and(image, image, mask = placemat)
     
     # Convert to HSV colorspace
     hsv = cv2.cvtColor(only_placemat,cv2.COLOR_RGB2HSV)
 
-
     # Calclate the histogram of the image in the hsv colorspace ONLY for the markers
     roihist = cv2.calcHist([hsv], [0, 1], markers_mask, [180, 256], [0, 180, 0, 256])
 
     # Values for H in the placemat
-    h1 = 92 #apo 94 stis 19/6 gia to food23 pou eixe h = 102
+    h1 = 92 
     h2 = 163
     
     # Find the most common S value for each H
-    s1 = np.where(roihist[85:101]==roihist[85:101].max())[1][0]
-    s2 = np.where(roihist[150:180]==roihist[150:180].max())[1][0]
+    s1 = np.where(roihist[85:101] == roihist[85:101].max())[1][0]
+    s2 = np.where(roihist[150:180] == roihist[150:180].max())[1][0]
     
     # Set some limits for H ans S for both colors and find pixels in these limits
-    upper1 =  np.array([h1 + 8, s1 + 50, 255])
-    lower1 =  np.array([h1 - 8, s1 - 30, 0])
+    upper1 = np.array([h1 + 8, s1 + 50, 255])
+    lower1 = np.array([h1 - 8, s1 - 30, 0])
     c1 = cv2.inRange(hsv, lower1, upper1)
      
-    upper2 =  np.array([h2 + 15, s2 + 70, 255])
-    lower2 =  np.array([h2 - 15, s2 - 50, 0])
+    upper2 = np.array([h2 + 15, s2 + 70, 255])
+    lower2 = np.array([h2 - 15, s2 - 50, 0])
     c2 = cv2.inRange(hsv, lower2, upper2)
     
     # Combine the results in color_mask
     color_mask = cv2.bitwise_or(c1, c2)
-
-#
-#    # Some weird greenish colors in HSV
-#    if roihist[0:20, 1:256].max() > 800:
-#        upper3 =  np.array([20, 180, 255])
-#        lower3 =  np.array([0, 0, 0])
-#        c3 = cv2.inRange(hsv, lower3, upper3)
-#        color_mask = cv2.bitwise_or(color_mask, c3)
-
 
     # Fill the markers for potential missing pixels in color_mask
     for i in range(len(cor)):
@@ -336,13 +305,8 @@ def food(image, placemat, cor):
     # The area beyond placemat is set to 0
     dish_mask = cv2.bitwise_and(color_mask, placemat)
 
+    dish_mask = cv2.morphologyEx(dish_mask, cv2.MORPH_OPEN, np.ones((3,3),np.uint8), iterations = 10)
 
-## apo 20 se 15   18/6 gia araka
-#    dish_mask = cv2.morphologyEx(dish_mask, cv2.MORPH_DILATE, np.ones((3,3),np.uint8), iterations = 5) 
-    dish_mask = cv2.morphologyEx(dish_mask, cv2.MORPH_OPEN, np.ones((3,3),np.uint8), iterations = 10) # apo 15 se 10 stis 19/6
-    
-    
-    
     im_floodfill = dish_mask.copy()
  
     # Mask used to flood filling.
@@ -364,8 +328,7 @@ def food(image, placemat, cor):
     dish = cv2.morphologyEx(im_out, cv2.MORPH_DILATE, np.ones((3,3),np.uint8), iterations = 20)
    
     # check code here, probably not needed till line 401
-   # Find contours
-   #  _, \
+    # Find contours
     contours, _ = cv2.findContours(dish, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     # Find the convex hull object for each contour
     hull_list = []
@@ -396,41 +359,34 @@ def food(image, placemat, cor):
     im_out = d | im_floodfill_inv
     
     dish = im_out
-    
-    
+
     # Mask the original image in order to have just the dish 
     plate = cv2.bitwise_and(image, image, mask = im_out)
-
-#    plate = cv2.cvtColor(plate, cv2.COLOR_RGB2HSV)
 
     gray = cv2.cvtColor(plate, cv2.COLOR_RGB2GRAY)
     
     # Find edges
-    ret, th = cv2.threshold(gray,0,255,cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
-    
-    
-    
-    ########### 13/6 apo 1.25*ret to piga 0.5*ret gia kaluteres (pio euaisthito)akmes sta kolokythakia
+    ret, th = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
+
+    ########### 
     lim = 1.3
    
-    edg = cv2.Canny(gray, 20, 40) #30,80
+    edg = cv2.Canny(gray, 20, 40)
     #############
 
     # Find the contours that are formed from the edges
     th1 = gray*edg
-    # _, \
-    contours,hierarchy = cv2.findContours(th1,2,1)
-
+    contours, hierarchy = cv2.findContours(th1, 2, 1)
 
     img = np.zeros(gray.shape, image.dtype)
     cv2.drawContours(img, contours, -1, 255, 3)
            
-    e = cv2.morphologyEx(im_out, cv2.MORPH_ERODE, np.ones((3,3),np.uint8), iterations = 15)
+    e = cv2.morphologyEx(im_out, cv2.MORPH_ERODE, np.ones((3, 3), np.uint8), iterations=15)
     cl = e*img
 
     cl = cv2.morphologyEx(cl, cv2.MORPH_CLOSE, np.ones((3, 3), np.uint8), iterations=10)
     
-    ## 12/6 arakas
+    ## 
     cl = cv2.morphologyEx(cl, cv2.MORPH_DILATE, np.ones((3, 3), np.uint8), iterations=4)
     ###
 
@@ -453,8 +409,7 @@ def food(image, placemat, cor):
 
     cl = cv2.morphologyEx(food, cv2.MORPH_OPEN, np.ones((3, 3), np.uint8), iterations=20)
     food = cv2.morphologyEx(cl, cv2.MORPH_ERODE, np.ones((3, 3), np.uint8), iterations=2)
-    
-    
+
     ##### fix this
     dif = 100*(np.where(dish>1)[0].shape[0] - np.where(food>1)[0].shape[0])/np.where(dish>1)[0].shape[0]
     if dif < 15:
@@ -464,22 +419,20 @@ def food(image, placemat, cor):
     
         # Find the contours that are formed from the edges
         th1 = gray*edg
-        _, contours,hierarchy = cv2.findContours(th1,2,1)
-    
-    
+        _, contours, hierarchy = cv2.findContours(th1, 2, 1)
+
         img = np.zeros(gray.shape, image.dtype)
         cv2.drawContours(img, contours, -1, 255, 3)
                
-        e = cv2.morphologyEx(im_out, cv2.MORPH_ERODE, np.ones((3,3),np.uint8), iterations = 15)
+        e = cv2.morphologyEx(im_out, cv2.MORPH_ERODE, np.ones((3, 3), np.uint8), iterations=15)
         cl = e*img
     
-        cl = cv2.morphologyEx(cl, cv2.MORPH_CLOSE, np.ones((3,3),np.uint8), iterations = 10)
+        cl = cv2.morphologyEx(cl, cv2.MORPH_CLOSE, np.ones((3, 3), np.uint8), iterations=10)
         
-        ## 12/6 arakas
-        cl = cv2.morphologyEx(cl, cv2.MORPH_DILATE, np.ones((3,3),np.uint8), iterations = 4)
+        ##
+        cl = cv2.morphologyEx(cl, cv2.MORPH_DILATE, np.ones((3, 3), np.uint8), iterations=4)
         ###
-    
-    
+
         # Copy the thresholded image.
         im_floodfill = cl.copy()
          
@@ -489,20 +442,18 @@ def food(image, placemat, cor):
         mask = np.zeros((h+2, w+2), np.uint8)
          
         # Floodfill from point (0, 0)
-        cv2.floodFill(im_floodfill, mask, (0,0), 255);
+        cv2.floodFill(im_floodfill, mask, (0, 0), 255)
          
         # Invert floodfilled image
         im_floodfill_inv = cv2.bitwise_not(im_floodfill)
          
         # Combine the two images to get the foreground.
         food = cl | im_floodfill_inv
-         
-    
-        cl = cv2.morphologyEx(food, cv2.MORPH_OPEN, np.ones((3,3),np.uint8), iterations = 20)
-        food = cv2.morphologyEx(cl, cv2.MORPH_ERODE, np.ones((3,3),np.uint8), iterations = 2 )
+        cl = cv2.morphologyEx(food, cv2.MORPH_OPEN, np.ones((3, 3), np.uint8), iterations=20)
+        food = cv2.morphologyEx(cl, cv2.MORPH_ERODE, np.ones((3, 3), np.uint8), iterations=2)
     ####
         
-    return food , dish  
+    return food, dish
 
 
 def volume_estimation(X, Y, Z, bottom, voxel, avg_dist):
@@ -519,29 +470,28 @@ def volume_estimation(X, Y, Z, bottom, voxel, avg_dist):
     """
     
     # Project the real points to the bottom level
-    points = np.zeros((len(X),3))
-    points[:,0] = X
-    points[:,1] = Y
-    points[:,2] = bottom
-    
+    points = np.zeros((len(X), 3))
+    points[:, 0] = X
+    points[:, 1] = Y
+    points[:, 2] = bottom
 
     real_points = np.copy(points)
-    real_points[:,2] = Z
+    real_points[:, 2] = Z
     
     # Delaunay for the projected points
-    tri = Delaunay(points[:,0:2], furthest_site = False)
+    tri = Delaunay(points[:, 0:2], furthest_site=False)
     
     # For each triangle combine the 3  projected and the 3 real points
     # and form a ConvexHull. Compute the volume and add it to the total volume.
     V = 0
     for i in range(len(tri.simplices)):
         p = points[tri.simplices[i]]
-        d1 = np.linalg.norm(p[0]- p[1])
-        d2 = np.linalg.norm(p[2]- p[1])
-        d3 = np.linalg.norm(p[0]- p[2])
+        d1 = np.linalg.norm(p[0] - p[1])
+        d2 = np.linalg.norm(p[2] - p[1])
+        d3 = np.linalg.norm(p[0] - p[2])
         avg = (d1 + d2 + d3)/3
         # If the average pairwise distance of the projected points is high, 
-        # dont compute the volume.
+        # don't compute the volume.
         if avg > avg_dist*voxel:
             continue
         point_set = np.vstack([points[tri.simplices[i]], real_points[tri.simplices[i]]])
