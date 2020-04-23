@@ -17,14 +17,17 @@ volume estimation and camera calibration.
 
 ## How to use
 First of all, print the placemat ('aruco_board.jpg') in A3 paper (29.7x42.0 cm).
+
 The plate that will be used must be plain with no patterns or weird textures.
+
 Record two videos for each one of the aforementioned methods:
 
 1. A video recording by moving freely the camera around the food in circular motion. It is
-better to keep a constant distance from the plate. Also, the placemat should be cle
-arly visible, so keep the camera at the top and not too close to the table.
+better to keep a constant distance from the plate. Also, the placemat should be clearly visible, 
+so keep the camera at the top and not too close to the table. The duration of
+the video will be ~15 sec.
 2. A video recording directly above the plate, facing vertically to it. The recording will be from
-left hand side to right hand side, by just moving the camera horizontally. The duration of
+left hand side to right hand side (preferably in landscape mode), by just moving the camera horizontally. The duration of
 the video will be ~8 sec.
 
 ## Run the code
